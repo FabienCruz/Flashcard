@@ -6,14 +6,21 @@ class Flashcard:
     answer: str
     priority: int = 1 # default value
 
-    def update_priority(self):
+    def upgrade_priority(self):
         # to remake considering test result
         if self.priority < 3:
             self.priority += 1
+        else:
+            self.priority = 1
         return self.priority
 
     def add_to_deck(self, deck):
         pass
+
+    def show(self) -> str:
+        # show question / show answer
+        return "card content"
+
     
 @dataclass
 class Deck:
@@ -28,3 +35,8 @@ class Deck:
 
     def shuffle(self):
         pass
+
+@dataclass
+class Menu():
+    content = str
+    action = str
