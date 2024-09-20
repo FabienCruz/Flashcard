@@ -1,42 +1,47 @@
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 
 @dataclass
-class Flashcard:
+class Card:
+    id_card = int
     question: str
     answer: str
-    priority: int = 1 # default value
+    priority: int = 1
+
+    def __post_init__(self):
+        # Assure que la priorité est toujours entre 1 et 3
+        if not (1 <= self.priority <= 3):
+            raise ValueError("La priorité doit être comprise entre 1 et 3")
 
     def upgrade_priority(self):
-        # to remake considering test result
-        if self.priority < 3:
-            self.priority += 1
-        else:
-            self.priority = 1
+        # Augmente la priorité à 3 sinon 1
+        self.priority = self.priority + 1 if self.priority < 3 else 1
         return self.priority
 
-    def add_to_deck(self, deck):
-        pass
-
-    def show(self) -> str:
-        # show question / show answer
-        return "card content"
+    def reset_priority(self) -> int:
+        self.priority = 1
+        return self.priority
 
     
 @dataclass
 class Deck:
     thema: str
-    flashcards: list
+    cards: list = field(default_factory=list)
 
-    def add_flashcard(self, flashcard):
+    def add_card(self, card: Card):
+        self.cards.append(card)
+        return f"deck {self.thema} get card {card.question}"
+
+    def show_cards(self):
         pass
 
-    def remove_flashcard(self, flashcard):
+    def remove_card(self, card):
         pass
 
     def shuffle(self):
         pass
 
 @dataclass
-class Menu():
+class Screen():
+    header =  str
     content = str
     action = str
