@@ -1,3 +1,6 @@
+# if __name__ == "__main__":
+# boucle moteur faisant tourner l'application
+
 from dataclasses import dataclass, field
 
 @dataclass
