@@ -1,50 +1,43 @@
-# if __name__ == "__main__":
+from view import Screen
+
+if __name__ == "__main__":
 # boucle moteur faisant tourner l'application
+window = tk.Tk()
 
-from dataclasses import dataclass, field
+# Instanciation de la classe Screen
+screen = Screen(window)
 
-@dataclass
-class Card:
-    id_card = int
-    question: str
-    answer: str
-    priority: int = 1
+# Instanciation des classes Thema et ActionThema
+#thema_screen = Thema(screen)
+#action_thema_screen = ActionThema(screen)
+#card_mats = CardMat(screen)
+#card_action = CardAction(screen)
 
-    def __post_init__(self):
-        # Assure que la priorité est toujours entre 1 et 3
-        if not (1 <= self.priority <= 3):
-            raise ValueError("La priorité doit être comprise entre 1 et 3")
+window.mainloop()
 
-    def upgrade_priority(self):
-        # Augmente la priorité à 3 sinon 1
-        self.priority = self.priority + 1 if self.priority < 3 else 1
-        return self.priority
+"""
+# main.py
+from model import TaskModel
+from view import TaskView
+from controller import TaskController
 
-    def reset_priority(self) -> int:
-        self.priority = 1
-        return self.priority
+def main():
+    # Initialisation du modèle
+    model = TaskModel()
 
-    
-@dataclass
-class Deck:
-    thema: str
-    cards: list = field(default_factory=list)
+    # Initialisation du contrôleur
+    controller = TaskController(model)
 
-    def add_card(self, card: Card):
-        self.cards.append(card)
-        return f"deck {self.thema} get card {card.question}"
+    # Création de la fenêtre principale Tkinter à l'intérieur de TaskView
+    app = TaskView(controller=controller)
 
-    def show_cards(self):
-        pass
+    # Lancer la boucle principale Tkinter
+    app.mainloop()
 
-    def remove_card(self, card):
-        pass
+    # Fermer la connexion à la base de données
+    model.close()
 
-    def shuffle(self):
-        pass
+if __name__ == "__main__":
+    main()
 
-@dataclass
-class Screen():
-    header =  str
-    content = str
-    action = str
+"""

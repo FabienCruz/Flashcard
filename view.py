@@ -77,16 +77,58 @@ class CardAction:
         self.card_action_btn_2 = ttk.Button(master=self.screen.card_action_frm, text='choix 2')
         self.card_action_btn_2.grid(column=1, row=0, padx=5, pady=5)
 
-# --- controller
-window = tk.Tk()
+"""
+# view.py
+import tkinter as tk
+from tkinter import messagebox
 
-# Instanciation de la classe Screen
-screen = Screen(window)
+class TaskView(tk.Frame):
+    def __init__(self, controller, master=None):
+        super().__init__(master)
+        self.controller = controller
+        self.master = master
+        self.master.title("Gestionnaire de tâches")
+        self.pack()
 
-# Instanciation des classes Thema et ActionThema
-thema_screen = Thema(screen)
-action_thema_screen = ActionThema(screen)
-card_mats = CardMat(screen)
-card_action = CardAction(screen)
+        # Création des widgets de l'interface
+        self.create_widgets()
 
-window.mainloop()
+    def create_widgets(self):
+        # Champ d'entrée pour ajouter une nouvelle tâche
+        self.task_label = tk.Label(self, text="Nouvelle tâche:")
+        self.task_label.pack()
+
+        self.task_entry = tk.Entry(self)
+        self.task_entry.pack()
+
+        self.add_button = tk.Button(self, text="Ajouter", command=self.add_task)
+        self.add_button.pack()
+
+        # Liste des tâches
+        self.task_listbox = tk.Listbox(self, height=10, width=50)
+        self.task_listbox.pack()
+
+        self.refresh_button = tk.Button(self, text="Rafraîchir", command=self.refresh_tasks)
+        self.refresh_button.pack()
+
+        self.quit_button = tk.Button(self, text="Quitter", command=self.master.quit)
+        self.quit_button.pack()
+
+    def add_task(self):
+        description = self.task_entry.get()
+        if description:
+            self.controller.add_task(description)
+            self.task_entry.delete(0, tk.END)
+            self.refresh_tasks()
+        else:
+            messagebox.showwarning("Erreur", "La description de la tâche ne peut pas être vide.")
+
+    def refresh_tasks(self):
+        # Efface la liste et la remplit avec les tâches
+        self.task_listbox.delete(0, tk.END)
+        tasks = self.controller.show_tasks()
+        for task in tasks:
+            status = 'Fait' if task[2] else 'Non fait'
+            self.task_listbox.insert(tk.END, f"ID: {task[0]} | {task[1]} | Statut: {status}")
+"""
+
