@@ -1,19 +1,15 @@
-from view import Screen
+from model import Database
+
+def main():
+    # création de la base de données
+    db = Database()
+    # lancer controller sur jeu
+    # lancer écran 
+    # fermeture de la base de données
+    db.close()
 
 if __name__ == "__main__":
-# boucle moteur faisant tourner l'application
-window = tk.Tk()
-
-# Instanciation de la classe Screen
-screen = Screen(window)
-
-# Instanciation des classes Thema et ActionThema
-#thema_screen = Thema(screen)
-#action_thema_screen = ActionThema(screen)
-#card_mats = CardMat(screen)
-#card_action = CardAction(screen)
-
-window.mainloop()
+    main()
 
 """
 # main.py

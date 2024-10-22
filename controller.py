@@ -1,6 +1,22 @@
-class Controller:
+class Deal:
+    def __init__(self, deck, card):
+        self.deck = deck
+        self.card = card
+
+    def pick_a_card():
+        pass
+
+    def show_question():
+        pass
+
+    def show_answer():
+        pass
+
+class ManageCards:
     pass
 
+class ManageDecks:
+    pass
 
 """
 # controller.py
