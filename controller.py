@@ -2,6 +2,10 @@ class Deal:
     def __init__(self, deck, card):
         self.deck = deck
         self.card = card
+    
+    def selected_thema(self):
+        all_decks = self.deck.get_all_decks()
+        return all_decks
 
     def pick_a_card():
         pass

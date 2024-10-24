@@ -1,9 +1,16 @@
-from model import Database
+from model import Database, Card, Deck
+from controller import Deal
 
 def main():
     # création de la base de données
     db = Database()
-    # lancer controller sur jeu
+    # initialiser le jeu
+    deck = Deck(db)
+    card = Card(db)
+    play = Deal(deck, card)
+    # récupérer la liste des thèmes
+    decks = play.selected_thema()
+    print(decks)
     # lancer écran 
     # fermeture de la base de données
     db.close()
