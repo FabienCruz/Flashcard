@@ -1,46 +1,22 @@
 from model import Database, Card, Deck
-from controller import Deal
+from controller import Play
+from view import Screen, Dealer, CardMat
 
 def main():
     # création de la base de données
     db = Database()
-    # initialiser le jeu
+    # charger les données
     deck = Deck(db)
     card = Card(db)
-    play = Deal(deck, card)
-    # récupérer la liste des thèmes
-    decks = play.selected_thema()
-    print(decks)
-    # lancer écran 
+    play = Play(db, deck, card)
+    # afficher l'écran
+    screen = Screen(play)
+    deal = Dealer(screen)
+    card_mat = CardMat(screen, deal)
+    # lancer l'application
+    screen.run()
     # fermeture de la base de données
     db.close()
 
 if __name__ == "__main__":
     main()
-
-"""
-# main.py
-from model import TaskModel
-from view import TaskView
-from controller import TaskController
-
-def main():
-    # Initialisation du modèle
-    model = TaskModel()
-
-    # Initialisation du contrôleur
-    controller = TaskController(model)
-
-    # Création de la fenêtre principale Tkinter à l'intérieur de TaskView
-    app = TaskView(controller=controller)
-
-    # Lancer la boucle principale Tkinter
-    app.mainloop()
-
-    # Fermer la connexion à la base de données
-    model.close()
-
-if __name__ == "__main__":
-    main()
-
-"""
