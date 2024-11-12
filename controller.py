@@ -19,32 +19,9 @@ class Play:
         return self.card.get_cards_by_decks(selected_themes_ids)
     
     def pick_a_card(self, selected_decks_id):
-        print("pick a card", selected_decks_id)
-        cards = self.card.get_cards_by_decks(selected_decks_id)
-        # les cartes doivent être classées par priorité
-        return print("cards", cards)  
-
-    def show_question():
-        pass
-
-    def show_answer():
-        pass
-
-class ManageCards:
-    pass
-
-class ManageDecks:
-    pass
-
-"""
-# controller.py
-class TaskController:
-    def __init__(self, model):
-        self.model = model
-
-    def add_task(self, description):
-        self.model.add_task(description)
-
-    def show_tasks(self):
-        return self.model.get_tasks()
-"""
+        if not selected_decks_id:
+            return None
+        # sélectionne les cartes avec les paquets sélectionnés
+        cards = self.get_cards_by_deck(selected_decks_id)
+        # retourne la première carte
+        return cards[0]

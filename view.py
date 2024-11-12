@@ -12,16 +12,16 @@ class Screen:
         self.dealer_frm.grid(column=0, row=0, padx=5, pady=5, sticky=(tk.W, tk.N))
 
         # frame (down-left) to activate
-        self.action_thema_frm = ttk.Frame(master=self.window)
-        self.action_thema_frm.grid(column=0, row=1, padx=5, pady=5, sticky=(tk.W, tk.S))
+        self.dealer_frm_action = ttk.Frame(master=self.window)
+        self.dealer_frm_action.grid(column=0, row=1, padx=5, pady=5, sticky=(tk.W, tk.S))
 
         # frame (up-right) to display cards (card mats)
         self.card_mat_frm = ttk.Frame(master=self.window)
         self.card_mat_frm.grid(column=1, row=0, padx=5, pady=5, sticky=(tk.E, tk.N))
 
         # frame (down-right) to act
-        self.card_action_frm = ttk.Frame(master=self.window)
-        self.card_action_frm.grid(column=1, row=1, padx=5, pady=5, sticky=(tk.E, tk.S))
+        self.card_frm_action = ttk.Frame(master=self.window)
+        self.card_frm_action.grid(column=1, row=1, padx=5, pady=5, sticky=(tk.E, tk.S))
 
     def run(self):
         self.window.protocol("WM_DELETE_WINDOW", self.stop)
@@ -43,7 +43,7 @@ class Dealer:
         # section with selection of dealer's menu
         self.deck_lbl = ttk.Label(self.screen.dealer_frm, text='Sélectionner:', font=('Helvetica', 12, 'bold'))
         self.deck_lbl.grid(sticky=tk.W, padx=5, pady=5)
-               
+        
         #--- variables to track the state of checkboxes
         self.check_vars = []
         
@@ -65,40 +65,56 @@ class Dealer:
     def get_selected_decks(self):
         return self.selected_decks
     
-    def give_a_card(self):
-        selected_cards = self.screen.controller.get_cards_by_deck(self.selected_decks)
-        return selected_cards
+    def draw_card(self):
+        selected_decks = self.get_selected_decks()
+        if selected_decks:
+            card = self.screen.controller.pick_a_card(selected_decks)
+            return card
+        else:
+            print("No decks selected")
+            return None
 
 class CardMat:
     def __init__(self, screen, dealer):
         self.screen = screen
-        self.selected_decks_id = dealer.get_selected_decks()
-        #self.card = screen.controller.pick_a_card(selected_decks_id)
+        self.dealer = dealer
+
+        # bouton pour tirer une carte
+        self.dealer_btn_draw = ttk.Button(master=self.screen.dealer_frm_action, text='tirer carte', command=lambda: self.deal_a_card(question=True))
+        self.dealer_btn_draw.grid(column=0, row=1, padx=5, pady=5, sticky=(tk.W, tk.S))
 
         # affichage de la carte
         self.card_title_lbl = ttk.Label(master=self.screen.card_mat_frm, text='Carte:', font=('Helvetica', 12, 'bold'))
         self.card_title_lbl.grid(padx=5, pady=5)
-"""
-class CardAction:
-    def __init__(self, screen):
-        self.screen = screen
 
-        self.card_action_btn_1 = ttk.Button(master=self.screen.card_action_frm, text='choix 1')
-        self.card_action_btn_1.grid(column=0, row=0, padx=5, pady=5)
-        self.card_action_btn_2 = ttk.Button(master=self.screen.card_action_frm, text='choix 2')
-        self.card_action_btn_2.grid(column=1, row=0, padx=5, pady=5)
-"""
+        # Utilisation d'un widget Text pour afficher le contenu de la carte
+        self.card_content_txt = tk.Text(master=self.screen.card_mat_frm, wrap=tk.WORD, font=('Helvetica', 18), height=10, width=50)
+        self.card_content_txt.grid(padx=5, pady=5)
+        self.card_content_txt.config(state=tk.DISABLED)  # Désactiver l'édition par l'utilisateur
 
-"""
-class ActionThema:
-    def __init__(self, screen):
-        self.screen = screen
-
-        # button to modify
-        self.action_thema_btn_modif = ttk.Button(master=self.screen.action_thema_frm, text='modifier')
-        self.action_thema_btn_modif.grid(column=0, row=0, padx=5, pady=5, sticky=(tk.W, tk.S))
+    def deal_a_card(self, question):
+        card = self.dealer.draw_card()
+        self.display_card(card, question)
         
-        # button "pick a card"
-        self.action_thema_btn_launch = ttk.Button(master=self.screen.action_thema_frm, text='tirer carte')
-        self.action_thema_btn_launch.grid(column=0, row=1, padx=5, pady=5, sticky=(tk.W, tk.S))
-"""      
+    def display_card(self, card, question):
+        self.card_content_txt.config(state=tk.NORMAL)  # Activer l'édition pour mettre à jour le texte
+        self.card_content_txt.delete(1.0, tk.END)  # Effacer le contenu précédent
+        if card:
+            if question:
+                card_text = f"Question: {card[1]}"
+                self.btn_answer()
+            else: 
+                card_text= f"Answer: {card[2]}"
+            self.card_content_txt.insert(tk.END, card_text)
+        else:
+            self.card_content_txt.insert(tk.END, "No card available")
+        self.card_content_txt.config(state=tk.DISABLED)  # Désactiver l'édition après mise à jour
+
+    def btn_answer(self):
+        # Effacer le contenu de self.screen.card_frm_action
+        for widget in self.screen.card_frm_action.winfo_children():
+            widget.destroy()
+            
+        # bouton pour voir la réponse
+        self.card_btn_answer = ttk.Button(master=self.screen.card_frm_action, text='voir la réponse', command=lambda: self.deal_a_card(question=False))
+        self.card_btn_answer.grid(padx=5, pady=5)
