@@ -25,3 +25,11 @@ class Play:
         cards = self.get_cards_by_deck(selected_decks_id)
         # retourne la première carte
         return cards[0]
+    
+    def update_card_priority(self, card_id, priority, answer):
+        if answer:
+            priority = priority + 1  
+        else:
+            priority = 1
+        print(f"priority: {priority}")
+        return self.card.update_card_priority(card_id, priority)

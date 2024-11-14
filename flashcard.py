@@ -11,8 +11,8 @@ def main():
     play = Play(db, deck, card)
     # afficher l'écran
     screen = Screen(play)
-    deal = Dealer(screen)
-    card_mat = CardMat(screen, deal)
+    dealer = Dealer(screen)
+    card_mat = CardMat(screen, dealer)
     # lancer l'application
     screen.run()
     # fermeture de la base de données

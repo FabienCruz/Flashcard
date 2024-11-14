@@ -1,5 +1,5 @@
 import tkinter as tk
-from tkinter import ttk
+from tkinter import ttk, messagebox
 
 class Screen:
     def __init__(self, controller):
@@ -102,19 +102,42 @@ class CardMat:
         if card:
             if question:
                 card_text = f"Question: {card[1]}"
-                self.btn_answer()
+                self.btn_see_answer()
             else: 
                 card_text= f"Answer: {card[2]}"
+                self.btn_good_answer(card)
             self.card_content_txt.insert(tk.END, card_text)
         else:
             self.card_content_txt.insert(tk.END, "No card available")
         self.card_content_txt.config(state=tk.DISABLED)  # Désactiver l'édition après mise à jour
 
-    def btn_answer(self):
+    def btn_see_answer(self):
         # Effacer le contenu de self.screen.card_frm_action
         for widget in self.screen.card_frm_action.winfo_children():
             widget.destroy()
             
         # bouton pour voir la réponse
-        self.card_btn_answer = ttk.Button(master=self.screen.card_frm_action, text='voir la réponse', command=lambda: self.deal_a_card(question=False))
-        self.card_btn_answer.grid(padx=5, pady=5)
+        self.card_btn_see_answer = ttk.Button(master=self.screen.card_frm_action, text='voir la réponse', command=lambda: self.deal_a_card(question=False))
+        self.card_btn_see_answer.grid(padx=5, pady=5)
+
+    def btn_good_answer(self, card):
+        # Effacer le contenu de self.screen.card_frm_action
+        for widget in self.screen.card_frm_action.winfo_children():
+            widget.destroy()
+    
+        # bouton "Bonne réponse ?"
+        self.btn_good = ttk.Button(master=self.screen.card_frm_action, text='Bonne réponse ?', command=lambda: self.update_priority(card, answer=True))
+        self.btn_good.grid(column=0, row=0, padx=5, pady=5)
+
+        # bouton "Mauvaise réponse ?"
+        self.btn_bad = ttk.Button(master=self.screen.card_frm_action, text='Mauvaise réponse ?', command=lambda: self.update_priority(card, answer=False))
+        self.btn_bad.grid(column=1, row=0, padx=5, pady=5)
+
+    def update_priority(self, card, answer):
+        # Appeler la méthode du contrôleur pour mettre à jour la priorité de la carte
+        print(f"card: {card}")
+        print(f"answer: {answer}")
+        self.screen.controller.update_card_priority(card_id=card[0], priority=card[3], answer=answer)
+        # Afficher la prochaine carte ou un message de confirmation
+        #self.deal_a_card(question=True)
+        messagebox.showinfo("Confirmation", "La priorité de la carte a été mise à jour.")

@@ -4,6 +4,19 @@ class Database:
     """
     Classe gérant la connexion à la base de données SQLite.
     """
+    _instance = None
+
+    def __new__(cls, *args, **kwargs):
+        """
+        Design Pattern Singleton : retourne une seule instance de la classe.
+        pour éviter de créer plusieurs connexions à la base de données.
+        
+        Retourne l'instance existante si elle existe, sinon en crée une nouvelle.
+        """
+        if cls._instance is None:
+            cls._instance = super().__new__(cls)
+        return cls._instance
+
     def __init__(self, db_name="flashcards.db"):
         """
         Initialise la connexion à la base de données.
@@ -230,6 +243,7 @@ class Card:
                     SET priority = ? 
                     WHERE card_id = ?;
                 """, (new_priority, card_id))
+                print(f"card_id: {card_id}, new_priority: {new_priority}")
                 return cur.rowcount > 0
         except sqlite3.Error as e:
             print(f"Erreur lors de la mise à jour de la priorité : {e}")
