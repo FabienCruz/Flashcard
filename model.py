@@ -243,7 +243,6 @@ class Card:
                     SET priority = ? 
                     WHERE card_id = ?;
                 """, (new_priority, card_id))
-                print(f"card_id: {card_id}, new_priority: {new_priority}")
                 return cur.rowcount > 0
         except sqlite3.Error as e:
             print(f"Erreur lors de la mise à jour de la priorité : {e}")
