@@ -1,5 +1,5 @@
 import tkinter as tk
-from tkinter import ttk, messagebox
+from tkinter import ttk, messagebox, simpledialog
 
 class Screen:
     """
@@ -29,6 +29,10 @@ class Screen:
         self.frm_down_right = ttk.Frame(master=self.window)
         self.frm_down_right.grid(column=1, row=1, padx=5, pady=5, sticky=(tk.E, tk.S))
 
+        # frame (bottom)
+        self.frm_bottom = ttk.Frame(master=self.window)
+        self.frm_bottom.grid(column=0, row=2, columnspan=2, padx=5, pady=5, sticky=(tk.W, tk.E, tk.S))
+
     # --- Méthodes pour effacer le contenu des cadres
 
     # efface le frame (up-left)
@@ -50,6 +54,19 @@ class Screen:
     def clear_frm_down_right(self):
         for widget in self.frm_down_right.winfo_children():
             widget.destroy()
+    
+    # efface le frame (bottom)
+    def clear_frm_bottom(self):
+        for widget in self.frm_bottom.winfo_children():
+            widget.destroy()
+
+    # efface le contenu de tous les cadres
+    def clear_all_frames(self):
+        self.clear_frm_up_left()
+        self.clear_frm_down_left()
+        self.clear_frm_up_right()
+        self.clear_frm_down_right()
+        self.clear_frm_bottom()
 
     # --- Méthodes pour activer l'écran (Screen), de fait active l'application
 
@@ -72,11 +89,21 @@ class Dealer:
     Elle fait fonction de menu.
 
     """
-    def __init__(self, screen):
+    def __init__(self, screen, manage_deck):
         self.screen = screen
-        self.decks = screen.controller.get_decks()
+        self.decks = manage_deck
         self.selected_decks = []
+        self.initialize_dealer()
 
+    def initialize_dealer(self):
+        # efface le contenu des cadres
+        self.screen.clear_frm_up_left()
+        self.screen.clear_frm_down_left()
+
+        # bouton pour gérer les cartes
+        self.manage_btn = ttk.Button(master=self.screen.frm_down_left, text='Gérer les cartes', command=self.show_manager) # command=self.manage_cards
+        self.manage_btn.grid(column=0, row=1, padx=5, pady=5, sticky=(tk.W, tk.S))
+        
         # section with selection of dealer's menu
         self.deck_lbl = ttk.Label(self.screen.frm_up_left, text='Sélectionner:', font=('Helvetica', 12, 'bold'))
         self.deck_lbl.grid(sticky=tk.W, padx=5, pady=5)
@@ -85,7 +112,7 @@ class Dealer:
         self.check_vars = []
         
         #--- display list of themes with checkboxes
-        for deck in self.decks:
+        for deck in self.decks.get_decks():
             var = tk.IntVar()  # Variable to track the checkbox state (0 = unchecked, 1 = checked)
             self.check_vars.append(var)
             checkbox = ttk.Checkbutton(
@@ -96,24 +123,19 @@ class Dealer:
                 )
             checkbox.grid(padx=3, pady=3, sticky=tk.W)
     
-    # bouton pour gérer les cartes
-        self.manage_btn = ttk.Button(master=self.screen.frm_down_left, text='Gérer les cartes') # command=self.manage_cards
-        self.manage_btn.grid(column=0, row=1, padx=5, pady=5, sticky=(tk.W, tk.S))
     
     def update_selected_decks(self):
-        self.selected_decks = self.screen.controller.on_deck_selection(self.check_vars, self.decks)
+        thema_list = self.decks.get_decks()
+        self.selected_decks = self.decks.on_deck_selection(self.check_vars, thema_list)
 
     def get_selected_decks(self):
         return self.selected_decks
     
-    def draw_card(self):
-        selected_decks = self.get_selected_decks()
-        if selected_decks:
-            card = self.screen.controller.pick_a_card(selected_decks)
-            return card
-        else:
-            print("No decks selected")
-            return None
+    def show_manager(self):
+        print("show_manager")
+        self.screen.clear_all_frames()
+        DeckManagerScreen(self.screen, self.decks)
+        # CardManagerScreen(self.screen, self.decks)
 
 class CardMat:
     """
@@ -123,9 +145,10 @@ class CardMat:
 
     """
 
-    def __init__(self, screen, dealer):
+    def __init__(self, screen, dealer, manage_card):
         self.screen = screen
         self.dealer = dealer
+        self.cards = manage_card
         self.initialize_card_mat()
 
     def initialize_card_mat(self):
@@ -147,8 +170,17 @@ class CardMat:
         self.card_content_txt.config(state=tk.DISABLED)  # Désactiver l'édition par l'utilisateur
 
     def deal_a_card(self, is_question):
-        card = self.dealer.draw_card()
+        card = self.draw_card()
         self.display_card(card, is_question)
+        
+    def draw_card(self):
+        selected_decks = self.dealer.get_selected_decks()
+        if selected_decks:
+            card = self.cards.pick_a_card(selected_decks)
+            return card
+        else:
+            print("No decks selected")
+            return None
         
     def display_card(self, card, is_question):
         self.card_content_txt.config(state=tk.NORMAL)  # Activer l'édition pour mettre à jour le texte
@@ -189,7 +221,38 @@ class CardMat:
 
     def update_priority(self, card, is_good_answer):
         # Appeler la méthode du contrôleur pour mettre à jour la priorité de la carte
-        self.screen.controller.update_card_priority(card_id=card[0], current_priority=card[3], is_good_answer=is_good_answer)
+        self.cards.update_card_priority(card_id=card[0], current_priority=card[3], is_good_answer=is_good_answer)
         # Afficher la prochaine carte ou un message de confirmation
         messagebox.showinfo("Réponse", "Votre réponse est enregistrée \n Tirer une nouvelle carte")
         self.initialize_card_mat()
+
+class DeckManagerScreen:
+    def __init__(self, screen, manage_deck):
+        self.screen = screen
+        self.decks = manage_deck
+        self.initialize_deck_manager()
+
+    # initialisation de l'écran de gestion des paquets
+    def initialize_deck_manager(self):
+        print("initialize_deck_manager")
+        # efface le contenu des cadres
+        self.screen.clear_frm_up_left()
+        self.screen.clear_frm_down_left()
+
+        # affichage du titre
+        self.deck_title_lbl = ttk.Label(master=self.screen.frm_up_left, text='Sélectionner un paquet:', font=('Helvetica', 12, 'bold'))
+        self.deck_title_lbl.grid(padx=5, pady=5)
+
+        # affichage de la liste des paquets
+        self.deck_listbox = tk.Listbox(master=self.screen.frm_up_left, height=10, width=50)
+        self.deck_listbox.grid(padx=5, pady=5)
+
+        # charger la liste des paquets
+        self.load_decks()
+    
+    def load_decks(self):
+        """Charge la liste des paquets dans la Listbox."""
+        self.deck_listbox.delete(0, tk.END)  # Effacer la liste existante
+        decks = self.decks.get_decks()
+        for deck in decks:
+            self.deck_listbox.insert(tk.END, f"{deck[0]}: {deck[1]}")

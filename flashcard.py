@@ -1,6 +1,6 @@
 from model import Database, Card, Deck
-from controller import Play
-from view import Screen, Dealer, CardMat
+from controller import ManageDB, ManageDeck, ManageCard
+from view import Screen, Dealer, CardMat, DeckManagerScreen
 
 def main():
     # création de la base de données
@@ -8,11 +8,14 @@ def main():
     # charger les données
     deck = Deck(db)
     card = Card(db)
-    play = Play(db, deck, card)
-    # afficher l'écran
-    screen = Screen(play)
-    dealer = Dealer(screen)
-    card_mat = CardMat(screen, dealer)
+    # initialiser les contrôleurs
+    manage_db = ManageDB(db)
+    manage_deck = ManageDeck(db, deck)
+    manage_card = ManageCard(db, card)
+    # afficher les écrans
+    screen = Screen(manage_db)
+    dealer = Dealer(screen, manage_deck)
+    card_mat = CardMat(screen, dealer, manage_card)
     # lancer l'application
     screen.run()
     # fermeture de la base de données

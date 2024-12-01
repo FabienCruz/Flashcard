@@ -115,6 +115,51 @@ class Deck:
         except sqlite3.Error as e:
             print(f"Erreur lors de la récupération du deck {deck_id} : {e}")
             return None
+        
+    def update_deck(self, deck_id, new_thema):
+        """
+        Met à jour le thème d'un deck.
+        
+        Args:
+            deck_id (int): L'ID du deck à modifier
+            new_thema (str): Le nouveau thème
+            
+        Returns:
+            bool: True si la mise à jour a réussi, False sinon
+        """
+        try:
+            with self.connexion:
+                cur = self.connexion.cursor()
+                cur.execute(
+                    "UPDATE decks SET thema = ? WHERE deck_id = ?;",
+                    (new_thema, deck_id)
+                )
+                return cur.rowcount > 0
+        except sqlite3.Error as e:
+            print(f"Erreur lors de la mise à jour du deck {deck_id} : {e}")
+            return False
+    
+    def delete_deck(self, deck_id):
+        """
+        Supprime un deck de la base de données.
+        
+        Args:
+            deck_id (int): L'ID du deck à supprimer
+            
+        Returns:
+            bool: True si la suppression a réussi, False sinon
+        """
+        try:
+            with self.connexion:
+                cur = self.connexion.cursor()
+                cur.execute(
+                    "DELETE FROM decks WHERE deck_id = ?;",
+                    (deck_id,)
+                )
+                return cur.rowcount > 0
+        except sqlite3.Error as e:
+            print(f"Erreur lors de la suppression du deck {deck_id} : {e}")
+            return False
 
 class Card:
     """
@@ -246,4 +291,51 @@ class Card:
                 return cur.rowcount > 0
         except sqlite3.Error as e:
             print(f"Erreur lors de la mise à jour de la priorité : {e}")
+            return False
+    
+    def update_card(self, card_id, new_question, new_answer):
+        """
+        Met à jour une carte.
+        
+        Args:
+            card_id (int): L'ID de la carte à modifier
+            new_question (str): La nouvelle question
+            new_answer (str): La nouvelle réponse
+            
+        Returns:
+            bool: True si la mise à jour a réussi, False sinon
+        """
+        try:
+            with self.connexion:
+                cur = self.connexion.cursor()
+                cur.execute("""
+                    UPDATE cards 
+                    SET question = ?, answer = ? 
+                    WHERE card_id = ?;
+                """, (new_question, new_answer, card_id))
+                return cur.rowcount > 0
+        except sqlite3.Error as e:
+            print(f"Erreur lors de la mise à jour de la carte {card_id} : {e}")
+            return False
+    
+    def delete_card(self, card_id):
+        """
+        Supprime une carte de la base de données.
+        
+        Args:
+            card_id (int): L'ID de la carte à supprimer
+            
+        Returns:
+            bool: True si la suppression a réussi, False sinon
+        """
+        try:
+            with self.connexion:
+                cur = self.connexion.cursor()
+                cur.execute(
+                    "DELETE FROM cards WHERE card_id = ?;",
+                    (card_id,)
+                )
+                return cur.rowcount > 0
+        except sqlite3.Error as e:
+            print(f"Erreur lors de la suppression de la carte {card_id} : {e}")
             return False
