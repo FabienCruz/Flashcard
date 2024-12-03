@@ -16,6 +16,7 @@ class ManageDeck(ManageDB):
     def __init__(self, db, deck):
         super().__init__(db)
         self.deck = deck
+        self.selected_decks = []
 
     def get_decks(self):
         return self.deck.get_all_decks()
@@ -24,11 +25,18 @@ class ManageDeck(ManageDB):
         selected_themes = [thema_list[i] for i, var in enumerate(check_vars) if var.get() == 1]
         return selected_themes
     
+    def update_selected_decks(self, check_vars):
+        thema_list = self.get_decks()
+        self.selected_decks = self.on_deck_selection(check_vars, thema_list)
+
+    def get_selected_decks(self):
+        return self.selected_decks
+    
     def add_deck(self, deck_name):
         return self.deck.add_deck(deck_name)
     
-    def update_deck(self, deck_id, deck_name):
-        return self.deck.update_deck(deck_id, deck_name)
+    def update_deck(self, deck_id, deck_new_name):
+        return self.deck.update_deck(deck_id, deck_new_name)
     
     def delete_deck(self, deck_id):
         return self.deck.delete_deck(deck_id)
@@ -41,6 +49,9 @@ class ManageCard(ManageDB):
     def get_cards_by_deck(self, selected_decks):
         selected_themes_ids = [theme[0] for theme in selected_decks]
         return self.card.get_cards_by_decks(selected_themes_ids)
+    
+    def get_cards_by_deck_id(self, deck_id):
+        return self.card.get_cards_by_deck_id(deck_id)
     
     def pick_a_card(self, selected_decks_id):
         if not selected_decks_id:
@@ -61,4 +72,22 @@ class ManageCard(ManageDB):
         return self.card.update_card(card_id, question, answer)
 
     def delete_card(self, card_id):
-        return self.card.delete_card(card_id)   
+        return self.card.delete_card(card_id)
+
+class ManageScreen:
+    def __init__(self, manage_db, manage_deck, manage_card):
+        self.manage_db = manage_db
+        self.manage_deck = manage_deck
+        self.manage_card = manage_card
+        self.screen = None
+    
+    def set_screen(self, screen):
+        self.screen = screen
+
+    def show_manager_screen(self):
+        """Coordonne l'affichage des écrans de gestion des paquets et des cartes"""
+        if self.screen:
+            self.screen.show_deck_manager()
+            self.screen.show_card_manager()
+    
+    

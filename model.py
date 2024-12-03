@@ -269,6 +269,30 @@ class Card:
             print(f"Erreur lors de la récupération des cartes par deck : {e}")
             return []
 
+    def get_cards_by_deck_id(self, deck_id):
+        """
+        Récupère les cartes d'un deck spécifique.
+        
+        Args:
+            deck_id (int): L'ID du deck
+        
+        Returns:
+            list: Liste de tuples (card_id, question, answer, priority, deck_id)
+        """
+        try:
+            cur = self.connexion.cursor()
+            cur.execute("""
+                SELECT card_id, question, answer, priority, deck_id 
+                FROM cards 
+                WHERE deck_id = ? 
+                ORDER BY priority DESC;
+            """, (deck_id,))
+            return cur.fetchall()
+        except sqlite3.Error as e:
+            print(f"Erreur lors de la récupération des cartes du deck {deck_id} : {e}")
+            return []
+
+
     def update_card_priority(self, card_id, new_priority):
         """
         Met à jour la priorité d'une carte.
