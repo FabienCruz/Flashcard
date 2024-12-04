@@ -29,8 +29,10 @@ def main():
     # instancie les écrans (jeu)
     dealer = Dealer(screen, manage_screen)
     card_mat = CardMat(screen, manage_screen)
+    screen.set_game(dealer, card_mat)
     
     # lancer l'application, boucle principale Tkinter (mainloop)
+    screen.after(0, manage_screen.show_game_screen)
     screen.run()
     
     # fermeture de la base de données

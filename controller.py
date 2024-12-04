@@ -83,6 +83,11 @@ class ManageScreen:
     
     def set_screen(self, screen):
         self.screen = screen
+    
+    def show_game_screen(self):
+        """Coordonne l'affichage de l'écran de jeu"""
+        if self.screen:
+            self.screen.show_game()
 
     def show_manager_screen(self):
         """Coordonne l'affichage des écrans de gestion des paquets et des cartes"""

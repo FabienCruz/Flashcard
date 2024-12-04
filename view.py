@@ -1,39 +1,42 @@
 import tkinter as tk
 from tkinter import ttk, messagebox
 
-class Screen:
+class Screen(tk.Tk):
     """
     la Classe Screen est responsable de l'affichage de l'interface graphique.
 
     """
     def __init__(self, manage_screen):
-        self.window = tk.Tk()
-        self.window.title("Flashcards")
+        super().__init__()
+        self.title("Flashcards")
         self.manage_db = manage_screen.manage_db
         # Attributs pour stocker les instances des écrans
         self.deck_screen = None # Instance de DeckManagerScreen
         self.card_screen = None # Instance de CardManagerScreen
-        
+        self.dealer = None # Instance de Dealer
+        self.card_mat = None
+
+
         # --- L'écran (Screen) est divisé en quatre cadres (frame)
         
         # frame (up-left)
-        self.frm_up_left = ttk.Frame(master=self.window)
+        self.frm_up_left = ttk.Frame(master=self)
         self.frm_up_left.grid(column=0, row=0, padx=5, pady=5, sticky=(tk.W, tk.N))
 
         # frame (down-left)
-        self.frm_down_left = ttk.Frame(master=self.window)
+        self.frm_down_left = ttk.Frame(master=self)
         self.frm_down_left.grid(column=0, row=1, padx=5, pady=5, sticky=(tk.W, tk.S))
 
         # frame (up-right)
-        self.frm_up_right = ttk.Frame(master=self.window)
+        self.frm_up_right = ttk.Frame(master=self)
         self.frm_up_right.grid(column=1, row=0, padx=5, pady=5, sticky=(tk.E, tk.N))
 
         # frame (down-right)
-        self.frm_down_right = ttk.Frame(master=self.window)
+        self.frm_down_right = ttk.Frame(master=self)
         self.frm_down_right.grid(column=1, row=1, padx=5, pady=5, sticky=(tk.E, tk.S))
 
         # frame (bottom)
-        self.frm_bottom = ttk.Frame(master=self.window)
+        self.frm_bottom = ttk.Frame(master=self)
         self.frm_bottom.grid(column=0, row=2, columnspan=2, padx=5, pady=5, sticky=(tk.W, tk.E, tk.S))
 
     # --- Méthodes pour effacer le contenu des cadres
@@ -71,8 +74,17 @@ class Screen:
         self.clear_frm_down_right()
         self.clear_frm_bottom()
 
-    # ---- Méthodes pour afficher les écrans de gestion des paquets et des cartes
+    # ---- Méthodes pour afficher les écrans
 
+    def set_game(self, dealer, card_mat):
+        self.dealer = dealer
+        self.card_mat = card_mat
+
+    def show_game(self):
+        if self.dealer and self.card_mat:
+            self.dealer.initialize_dealer()
+            self.card_mat.initialize_card_mat()
+    
     def set_managers(self, deck_screen, card_screen):
         """
         Stocke les références vers les écrans de gestion.
@@ -98,13 +110,13 @@ class Screen:
 
     # méthode pour lancer l'application et écouter les événements
     def run(self):
-        self.window.protocol("WM_DELETE_WINDOW", self.stop)
-        self.window.mainloop()
+        self.protocol("WM_DELETE", self.stop)
+        self.mainloop()
 
     # méthode pour fermer l'application
     def stop(self):
         print("fermeture de l'application")
-        self.window.destroy()
+        self.destroy()
         self.manage_db.close_database()
 
 
@@ -118,8 +130,6 @@ class Dealer:
     def __init__(self, screen, manage_screen):
         self.screen = screen
         self.manage_screen = manage_screen
-        #self.selected_decks = []
-        self.initialize_dealer()
 
     def initialize_dealer(self):
         # efface le contenu des cadres
@@ -165,7 +175,6 @@ class CardMat:
         self.screen = screen
         self.decks = manage_screen.manage_deck
         self.cards = manage_screen.manage_card
-        self.initialize_card_mat()
 
     def initialize_card_mat(self):
         # efface le contenu des cadres
