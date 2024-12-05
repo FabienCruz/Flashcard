@@ -95,4 +95,9 @@ class ManageScreen:
             self.screen.show_deck_manager()
             self.screen.show_card_manager()
     
+    def update_card_manager(self, deck_id):
+        """Met à jour l'écran de gestion des cartes"""
+        if self.screen and self.screen.card_screen:
+            self.screen.card_screen.load_cards(deck_id)
+    
     

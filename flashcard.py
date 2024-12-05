@@ -22,8 +22,8 @@ def main():
     manage_screen.set_screen(screen)
     
     # instancie les écrans (gestion)
-    deck_screen = DeckManagerScreen(screen, manage_deck)
-    card_screen = CardManagerScreen(screen, manage_card)
+    deck_screen = DeckManagerScreen(screen, manage_screen)
+    card_screen = CardManagerScreen(screen, manage_screen)
     screen.set_managers(deck_screen, card_screen)
 
     # instancie les écrans (jeu)
