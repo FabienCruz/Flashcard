@@ -17,6 +17,7 @@ class ManageDeck(ManageDB):
         super().__init__(db)
         self.deck = deck
         self.selected_decks = []
+        self.selected_deck_id = None
 
     def get_decks(self):
         return self.deck.get_all_decks()
@@ -32,6 +33,9 @@ class ManageDeck(ManageDB):
     def get_selected_decks(self):
         return self.selected_decks
     
+    def set_selected_deck_id(self, deck_id):
+        self.selected_deck_id = deck_id
+    
     def add_deck(self, deck_name):
         return self.deck.add_deck(deck_name)
     
@@ -45,6 +49,9 @@ class ManageCard(ManageDB):
     def __init__(self, db, card):
         super().__init__(db)
         self.card = card
+    
+    def get_card_by_id(self, card_id):
+        return self.card.get_card_by_id(card_id)
     
     def get_cards_by_deck(self, selected_decks):
         selected_themes_ids = [theme[0] for theme in selected_decks]
@@ -65,8 +72,8 @@ class ManageCard(ManageDB):
         new_priority = current_priority + 1 if is_good_answer else 1
         return self.card.update_card_priority(card_id, new_priority)
 
-    def add_card(self, deck_id, question, answer):
-        return self.card.add_card(deck_id, question, answer)
+    def add_card(self, question, answer, priority, deck_id):
+        return self.card.add_card(question=question, answer=answer, priority=1, deck_id=deck_id)
 
     def update_card(self, card_id, question, answer):
         return self.card.update_card(card_id, question, answer)
@@ -94,6 +101,7 @@ class ManageScreen:
         if self.screen:
             self.screen.show_deck_manager()
             self.screen.show_card_manager()
+            self.screen.show_return_button()
     
     def update_card_manager(self, deck_id):
         """Met à jour l'écran de gestion des cartes"""

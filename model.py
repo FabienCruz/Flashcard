@@ -269,6 +269,27 @@ class Card:
             print(f"Erreur lors de la récupération des cartes par deck : {e}")
             return []
 
+    def get_card_by_id(self, card_id):
+        """
+        Récupère une carte spécifique par son ID.
+        
+        Args:
+            card_id (int): L'ID de la carte à récupérer
+            
+        Returns:
+            tuple: (card_id, question, answer, priority, deck_id) ou None si non trouvé
+        """
+        try:
+            cur = self.connexion.cursor()
+            cur.execute(
+                "SELECT card_id, question, answer, priority, deck_id FROM cards WHERE card_id = ?;",
+                (card_id,)
+            )
+            return cur.fetchone()
+        except sqlite3.Error as e:
+            print(f"Erreur lors de la récupération de la carte {card_id} : {e}")
+            return None
+    
     def get_cards_by_deck_id(self, deck_id):
         """
         Récupère les cartes d'un deck spécifique.

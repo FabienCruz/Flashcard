@@ -1,5 +1,6 @@
 import tkinter as tk
-from tkinter import ttk, messagebox, simpledialog
+from tkinter import ttk, messagebox, simpledialog, Toplevel, Text, Button, Label
+from tkinter.scrolledtext import ScrolledText
 
 class Screen(tk.Tk):
     """
@@ -13,6 +14,7 @@ class Screen(tk.Tk):
         # Attributs pour stocker les instances des écrans
         self.deck_screen = None # Instance de DeckManagerScreen
         self.card_screen = None # Instance de CardManagerScreen
+        self.return_button = None # Instance de ReturnButton
         self.dealer = None # Instance de Dealer
         self.card_mat = None # Instance de CardMat
 
@@ -85,7 +87,7 @@ class Screen(tk.Tk):
             self.dealer.initialize_dealer()
             self.card_mat.initialize_card_mat()
     
-    def set_managers(self, deck_screen, card_screen):
+    def set_managers(self, deck_screen, card_screen, return_button):
         """
         Stocke les références vers les écrans de gestion.
         
@@ -95,6 +97,7 @@ class Screen(tk.Tk):
         """
         self.deck_screen = deck_screen
         self.card_screen = card_screen
+        self.return_button = return_button
 
     def show_deck_manager(self):
         """Affiche l'écran de gestion des paquets."""
@@ -105,6 +108,10 @@ class Screen(tk.Tk):
         """Affiche l'écran de gestion des cartes."""
         if self.card_screen:
             self.card_screen.initialize_card_manager()
+
+    def show_return_button(self):
+        if self.return_button:
+            self.return_button.initialize_return_button()
 
     # --- Méthodes pour activer l'écran (Screen), de fait active l'application
 
@@ -306,6 +313,7 @@ class DeckManagerScreen:
         """Méthode appelée lorsqu'un paquet est sélectionné dans la Listbox."""
         deck_id = self.get_selected_deck_id()
         if deck_id is not None:
+            self.manage_screen.manage_deck.set_selected_deck_id(deck_id)
             self.manage_screen.update_card_manager(deck_id)
 
     def add_deck(self):
@@ -340,6 +348,7 @@ class DeckManagerScreen:
 class CardManagerScreen:
     def __init__(self, screen, manage_screen):
         self.screen = screen
+        self.manage_screen = manage_screen
         self.card_manager = manage_screen.manage_card
 
     def initialize_card_manager(self):
@@ -376,8 +385,8 @@ class CardManagerScreen:
         """Méthode appelée lorsqu'une carte est sélectionnée dans la Listbox."""
         card_id = self.get_selected_card_id()
         if card_id is not None:
-            print(f"Carte sélectionnée : {card_id}")
-    
+            return card_id
+
     def get_selected_card_id(self):
         """Récupère l'identifiant de la carte sélectionnée dans la Listbox."""
         try:
@@ -390,11 +399,111 @@ class CardManagerScreen:
 
     # --- méthodes pour gérer les cartes (CRUD)
     def add_card(self):
-        return print("Ajouter une carte")
-    
-    def delete_card(self):
-        return print("Supprimer une carte")
+        """Affiche le formulaire pour ajouter une carte."""
+        deck_id = self.manage_screen.manage_deck.selected_deck_id
+        CardForm(self.screen, self.card_manager, deck_id, card=None, callback=lambda: self.load_cards(deck_id))
     
     def update_card(self):
-        return print("Modifier une carte")
+        """Affiche le formulaire pour modifier une carte."""
+        deck_id = self.manage_screen.manage_deck.selected_deck_id
+        card_id = self.get_selected_card_id()
+        if card_id:
+            card = self.card_manager.get_card_by_id(card_id)
+            CardForm(self.screen, self.card_manager, deck_id, card)
+        else:
+            messagebox.showinfo("Modifier une carte", "Sélectionnez une carte à modifier")
+
+    def delete_card(self):
+        card_id = self.get_selected_card_id()
+        if card_id:
+            security = messagebox.askyesno("Avertissement", "Voulez-vous vraiment supprimer cette carte ?")
+            if security:
+                self.card_manager.delete_card(card_id)
+                self.load_cards(self.manage_screen.manage_deck.selected_deck_id)
+        else:
+            messagebox.showinfo("Supprimer une carte", "Sélectionnez une carte à supprimer")
+    
+class CardForm(Toplevel):
+    def __init__(self, parent, manage_card, deck_id=None, card=None, callback=None):
+        super().__init__(parent)
+        self.title("Ajouter une carte" if card is None else "Modifier une carte")
+        self.manage_card = manage_card
+        self.card = card
+        self.deck_id = deck_id
+        self.callback = callback
+        self.geometry("400x320")
+
+        # Champ "question"
+        Label(self, text="Question (150 caractères max):").pack(pady=5)
+        self.question_text = Text(self, height=3, width=40)
+        self.question_text.pack(pady=5)
+        self.question_text.bind("<KeyRelease>", self.limit_question_length)
+        
+        # Champ "réponse"
+        Label(self, text="Réponse:").pack(pady=5)
+        self.answer_text = ScrolledText(self, height=10, width=40)
+        self.answer_text.pack(pady=5)
+        
+        # Pré-remplir les champs si une carte est fournie
+        if card:
+            """
+            insère le texte de la question et de la réponse dans les champs correspondants
+            card est un tuple (id, question, answer, priority, deck_id)
+            """
+            self.question_text.insert("1.0", card[1])
+            self.answer_text.insert("1.0", card[2])
+        
+        # Bouton "Enregistrer"
+        Button(self, text="Enregistrer", command=self.save_card).pack(pady=10)
+    
+    def limit_question_length(self, event):
+        """Limite la longueur du texte dans le champ question à 150 caractères."""
+        if len(self.question_text.get("1.0", "end-1c")) > 150:
+            self.question_text.delete("1.0 + 150c", "end")
+    
+    def save_card(self):
+        """Enregistre la carte."""
+        deck_id = self.deck_id
+        question = self.question_text.get("1.0", "end-1c").strip()
+        answer = self.answer_text.get("1.0", "end-1c").strip()
+        priority = 1
+        
+        if not question or not answer:
+            messagebox.showwarning("Avertissement", "Les champs question et réponse ne peuvent pas être vides.")
+            return
+        
+        if self.card:
+            # Modifier la carte existante
+            """
+            la méthode update_card attend trois arguments:
+                - card_id : int
+                - question : str
+                - answer : str
+            card est un tuple (id, question, answer, priority, deck_id)
+            """
+            self.manage_card.update_card(self.card[0], question, answer)
+            messagebox.showinfo("Information", "Carte modifiée avec succès.")
+        else:
+            # Ajouter une nouvelle carte
+            self.manage_card.add_card(question, answer, priority, deck_id)
+            messagebox.showinfo("Information", "Carte ajoutée avec succès.")
+        
+        # appeler le callback si fourni
+        if self.callback:
+            self.callback()
+
+        self.destroy()
+
+class ReturnButton:
+    def __init__(self, screen, manage_screen):
+        self.screen = screen
+        self.manage_screen = manage_screen
+
+    def initialize_return_button(self):
+        self.btn_return = ttk.Button(master=self.screen.frm_bottom, text='Retour', command=self.back_to_game, width=22)
+        self.btn_return.pack(side=tk.TOP, padx=5, pady=5)
+
+    def back_to_game(self):
+        self.screen.clear_all_frames()
+        self.manage_screen.show_game_screen()
 

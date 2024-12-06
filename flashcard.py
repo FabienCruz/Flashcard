@@ -1,6 +1,6 @@
 from model import Database, Card, Deck
 from controller import ManageDB, ManageDeck, ManageCard, ManageScreen
-from view import Screen, Dealer, CardMat, DeckManagerScreen, CardManagerScreen
+from view import Screen, Dealer, CardMat, DeckManagerScreen, CardManagerScreen, ReturnButton
 
 def main():
     
@@ -24,7 +24,8 @@ def main():
     # instancie les écrans (gestion)
     deck_screen = DeckManagerScreen(screen, manage_screen)
     card_screen = CardManagerScreen(screen, manage_screen)
-    screen.set_managers(deck_screen, card_screen)
+    return_button = ReturnButton(screen, manage_screen)
+    screen.set_managers(deck_screen, card_screen, return_button)
 
     # instancie les écrans (jeu)
     dealer = Dealer(screen, manage_screen)
