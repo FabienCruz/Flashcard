@@ -160,7 +160,7 @@ class Dealer:
             self.check_vars.append(var)
             checkbox = ttk.Checkbutton(
                 master=self.screen.frm_up_left, 
-                text=deck, 
+                text=deck[1], # deck is a tuple (id, name) 
                 variable=var,
                 command=lambda v=self.check_vars: self.manage_screen.manage_deck.update_selected_decks(v)
                 )
@@ -197,7 +197,7 @@ class CardMat:
         self.card_title_lbl.grid(padx=5, pady=5)
 
         # Utilisation d'un widget Text pour afficher le contenu de la carte
-        self.card_content_txt = tk.Text(master=self.screen.frm_up_right, wrap=tk.WORD, font=('Helvetica', 18), height=10, width=50)
+        self.card_content_txt = tk.Text(master=self.screen.frm_up_right, wrap=tk.WORD, font=('Helvetica', 18), height=10, width=50, padx=10, pady=10)
         self.card_content_txt.grid(padx=5, pady=5)
         self.card_content_txt.config(state=tk.DISABLED)  # Désactiver l'édition par l'utilisateur
 
@@ -219,10 +219,10 @@ class CardMat:
         self.card_content_txt.delete(1.0, tk.END)  # Effacer le contenu précédent
         if card:
             if is_question:
-                card_text = f"Question: {card[1]}"
+                card_text = f"Question:\n\n{card[1]}"
                 self.btn_see_answer()
             else: 
-                card_text= f"Answer: {card[2]}"
+                card_text= f"Réponse:\n\n{card[2]}"
                 self.btn_is_good_answer(card)
             self.card_content_txt.insert(tk.END, card_text)
         else:
@@ -271,7 +271,7 @@ class DeckManagerScreen:
         self.screen.clear_frm_down_left()
 
         # affichage du titre
-        self.deck_title_lbl = ttk.Label(master=self.screen.frm_up_left, text='Sélectionner un paquet:', font=('Helvetica', 12, 'bold'))
+        self.deck_title_lbl = ttk.Label(master=self.screen.frm_up_left, text='Gérer un paquet:', font=('Helvetica', 12, 'bold'))
         self.deck_title_lbl.grid(padx=5, pady=5)
 
         # affichage de la liste des paquets
@@ -297,7 +297,7 @@ class DeckManagerScreen:
         self.deck_listbox.delete(0, tk.END)  # Effacer la liste existante
         decks = self.decks.get_decks()
         for deck in decks:
-            self.deck_listbox.insert(tk.END, f"{deck[0]}: {deck[1]}")
+            self.deck_listbox.insert(tk.END, f"{deck[0]}:{deck[1]}")
     
     def get_selected_deck_id(self):
         """Récupère le paquet sélectionné dans la Listbox."""
