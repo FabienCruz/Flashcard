@@ -1,6 +1,6 @@
-from model import Database, Card, Deck
-from controller import ManageDB, ManageDeck, ManageCard, ManageScreen
-from view import Screen, Dealer, CardMat, DeckManagerScreen, CardManagerScreen, ReturnButton
+from models import Database, Card, Deck
+from controllers import ManageDB, ManageDeck, ManageCard, ManageScreen
+from views import Screen, Dealer, CardMat, DeckManagerScreen, CardManagerScreen, ReturnButton
 
 def main():
     
